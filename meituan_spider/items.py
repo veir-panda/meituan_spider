@@ -13,5 +13,6 @@ class MeituanArticleSpiderItem(scrapy.Item):
     url = scrapy.Field()
     title = scrapy.Field()
     content = scrapy.Field()
+    tags = scrapy.Field()
     author = scrapy.Field()
     publish_time = scrapy.Field()

@@ -1,52 +1,20 @@
-# -*- coding: utf-8 -*-
 from elasticsearch import Elasticsearch
 from elasticsearch.client import IndicesClient
-import logging
-
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://doc.scrapy.org/en/latest/topics/item-pipeline.html
+import unittest
 
 
-class MeituanArticleSaveSpiderPipeline(object):
-    def __init__(self):
-        print("inited")
-
-    def open_spider(self, spider):
-        print("start crawled")
-
-    def close_spider(self, spider):
-        print("closed")
-
-    @classmethod
-    def from_crawler(cls, crawler):
-        """
-        从管道中访问爬虫实例，例如爬虫的配置信息
-        :param crawler:
-        :return:
-        """
-        # return cls(
-        #     mongo_uri=crawler.settings.get('MONGO_URI'),
-        #     mongo_db=crawler.settings.get('MONGO_DATABASE', 'items')
-        # )
-        return cls()
-
-    def process_item(self, item, spider):
-        print(111)
-        return item
-
-
-class MeituanArticleESSaverPipeline(object):
-    def __init__(self, es_host, es_auth):
-        self.es = Elasticsearch(hosts=es_host,
-                                http_auth=es_auth,
+class ESTest(unittest.TestCase):
+    def setUp(self) -> None:
+        hosts = [
+            '139.224.237.185:9020',
+        ]
+        http_auth = ('elastic', 'xiongwei')
+        self.es = Elasticsearch(hosts=hosts,
+                                http_auth=http_auth,
                                 # 节点无法响应后刷新节点
                                 sniff_on_connection_fail=True)
         self.index = "meituan-tech"
-        logging.info("ElasticSearch index: %s", self.index)
         if not self.es.indices.exists(self.index):
-            logging.info("ElasticSearch index not exist, will auto created.")
             idx_body = {
                 "mappings": {
                     "properties": {
@@ -86,25 +54,28 @@ class MeituanArticleESSaverPipeline(object):
             }
             self.es.indices.create(self.index, body=idx_body)
 
-    def open_spider(self, spider):
-        logging.info("spider started.")
-
-    def close_spider(self, spider):
+    def tearDown(self) -> None:
         self.es.close()
-        logging.info("spider closed.")
 
-    def process_item(self, item, spider):
-        res = self.es.index(self.index, dict(item))
-        return item
+    def testExist(self):
+        result = self.es.indices.exists(self.index)
+        print(result)
 
-    @classmethod
-    def from_crawler(cls, crawler):
-        """
-        从管道中访问爬虫实例，例如爬虫的配置信息
-        :param crawler:
-        :return:
-        """
-        return cls(
-            es_host=crawler.settings.get('ELASTICSEARCH_HOSTS'),
-            es_auth=crawler.settings.get('ELASTICSEARCH_AUTH')
-        )
+    def testGet(self):
+        print(self.es.get(self.index, '1'))
+
+    def testCreate(self):
+        body = {
+            "url": "http://111.",
+            "title": "Java工程师",
+            "desc": "数据库管理"
+        }
+        print(self.es.index(self.index, body, id='1'))
+
+    def testSearch(self):
+        res = self.es.search(index=self.index)
+        print(res)
+
+
+if __name__ == '__main__':
+    pass

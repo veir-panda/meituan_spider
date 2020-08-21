@@ -9,21 +9,27 @@ class MeituanArticleSpider(scrapy.Spider):
         super().__init__(name, **kwargs)
         self.extractor = GeneralNewsExtractor()
         self.urls = urls if urls is not None else ["https://tech.meituan.com/2013/12/04/yui3-practice.html"]
+        self.count = 1
 
     def start_requests(self):
         for url in self.urls:
             yield scrapy.Request(url, callback=self.parse)
 
     def parse(self, response:scrapy.http.response.Response):
-        next_page = response.xpath('//div[@class="navigation-wrapper"]/div/a[@class="next"]').get()
+        next_page = response.xpath('//div[@class="navigation-wrapper"]/div/a[@class="next"]/@href').get()
         if next_page:
-            # yield response.follow(next_page, callback=self.parse)
             print(next_page)
+            self.count += 1
+            if self.count < 5:
+                yield response.follow(next_page, callback=self.parse)
 
+        desc = response.xpath('//meta[@name="description"]/@content').get()
+        tags = response.xpath('//span[@class="tag-links"]/a/text()').getall()
         res = self.extractor.extract(response.text)
-        return MeituanArticleSpiderItem(url=response.url,
+        yield MeituanArticleSpiderItem(url=response.url,
                                         title=res['title'],
                                         content=res['content'],
+                                        tags=tags,
                                         author=res['author'],
                                         publish_time=res['publish_time'])
 
