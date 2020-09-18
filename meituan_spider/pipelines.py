@@ -33,7 +33,7 @@ class MeituanArticleSaveSpiderPipeline(object):
         return cls()
 
     def process_item(self, item, spider):
-        print(111)
+        # print(item)
         return item
 
 
@@ -94,7 +94,7 @@ class MeituanArticleESSaverPipeline(object):
         logging.info("spider closed.")
 
     def process_item(self, item, spider):
-        res = self.es.index(self.index, dict(item))
+        # res = self.es.index(self.index, dict(item))
         return item
 
     @classmethod

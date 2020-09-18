@@ -64,8 +64,8 @@ ROBOTSTXT_OBEY = False
 # Configure item pipelines
 # See https://doc.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    # 'meituan_spider.pipelines.MeituanArticleSaveSpiderPipeline': 300,
-    'meituan_spider.pipelines.MeituanArticleESSaverPipeline': 300,
+    'meituan_spider.pipelines.MeituanArticleSaveSpiderPipeline': 300,
+    # 'meituan_spider.pipelines.MeituanArticleESSaverPipeline': 300,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -93,6 +93,6 @@ import logging
 LOG_LEVEL = logging.INFO
 
 ELASTICSEARCH_HOSTS = [
-    '127.0.0.1:9200',
+    '',
 ]
-ELASTICSEARCH_AUTH = ('elastic', 'password')
+ELASTICSEARCH_AUTH = ('', '')

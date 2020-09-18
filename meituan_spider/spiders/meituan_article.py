@@ -1,15 +1,21 @@
 import scrapy
 from gne import GeneralNewsExtractor
 from meituan_spider.items import MeituanArticleSpiderItem
+import logging
 
 class MeituanArticleSpider(scrapy.Spider):
+    runing = False
     name = "meituan_article"
 
     def __init__(self, name=None, urls=None, **kwargs):
         super().__init__(name, **kwargs)
         self.extractor = GeneralNewsExtractor()
-        self.urls = urls if urls is not None else ["https://tech.meituan.com/2013/12/04/yui3-practice.html"]
+        # self.urls = urls if urls is not None else ["https://tech.meituan.com/2013/12/04/yui3-practice.html"]
+        if urls is None:
+            raise ValueError("url 不能为空")
+        self.urls = urls
         self.count = 1
+        MeituanArticleSpider.runing = True
 
     def start_requests(self):
         for url in self.urls:
@@ -20,7 +26,7 @@ class MeituanArticleSpider(scrapy.Spider):
         if next_page:
             print(next_page)
             self.count += 1
-            if self.count < 5:
+            if self.count < 20:
                 yield response.follow(next_page, callback=self.parse)
 
         desc = response.xpath('//meta[@name="description"]/@content').get()
@@ -32,6 +38,11 @@ class MeituanArticleSpider(scrapy.Spider):
                                         tags=tags,
                                         author=res['author'],
                                         publish_time=res['publish_time'])
+
+    @staticmethod
+    def close(spider, reason):
+        MeituanArticleSpider.runing = False
+        return super().close(spider, reason)
 
 
 

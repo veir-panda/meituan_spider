@@ -6,9 +6,9 @@ import unittest
 class ESTest(unittest.TestCase):
     def setUp(self) -> None:
         hosts = [
-            '139.224.237.185:9020',
+            '',
         ]
-        http_auth = ('elastic', 'xiongwei')
+        http_auth = ('', '')
         self.es = Elasticsearch(hosts=hosts,
                                 http_auth=http_auth,
                                 # 节点无法响应后刷新节点
